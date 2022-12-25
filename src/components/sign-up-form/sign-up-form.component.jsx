@@ -1,5 +1,11 @@
 import { useState } from 'react';
-import { createAuthUserWithEmailAndPassword } from '../../utils/firebase/firebase.utils';
+import {
+  createAuthUserWithEmailAndPassword,
+  createUserDocumentFromAuth,
+} from '../../utils/firebase/firebase.utils';
+import FormInput from '../form-input/form-input.component';
+import Button from '../button/button.component';
+import './sign-up-form.styles.scss';
 
 const defaultFormFields = {
   displayName: '',
@@ -12,11 +18,14 @@ const SignUpForm = () => {
   const [formFields, setFormFields] = useState(defaultFormFields);
   const { displayName, email, password, confirmPassword } = formFields;
 
+  const resetFormFields = () => {
+    setFormFields(defaultFormFields);
+  };
+
   const handleSubmit = async (event) => {
     event.preventDefault();
 
     if (password !== confirmPassword) {
-      alert('passwords do not match');
       return;
     }
 
@@ -25,9 +34,15 @@ const SignUpForm = () => {
         email,
         password
       );
-      console.log(response);
+
+      createUserDocumentFromAuth(user, { displayName });
+      resetFormFields();
     } catch (error) {
-      console.error(error);
+      console.log(error);
+
+      if (error.code === 'auth/email-already-in-use') {
+        alert('Cannot create user. Email already in use');
+      }
     }
   };
 
@@ -42,11 +57,12 @@ const SignUpForm = () => {
   };
 
   return (
-    <div>
-      <h1>Sign up with your email and passowrd</h1>
+    <div className='sign-up-form-container'>
+      <h2>Don't have an account?</h2>
+      <span>Sign up with your email and passowrd</span>
       <form onSubmit={handleSubmit}>
-        <label>Display name</label>
-        <input
+        <FormInput
+          label='Display name'
           name='displayName'
           type='text'
           value={displayName}
@@ -54,8 +70,8 @@ const SignUpForm = () => {
           required
         />
 
-        <label>Email</label>
-        <input
+        <FormInput
+          label='Email'
           name='email'
           type='email'
           value={email}
@@ -63,8 +79,8 @@ const SignUpForm = () => {
           required
         />
 
-        <label>Password</label>
-        <input
+        <FormInput
+          label='Password'
           name='password'
           type='password'
           value={password}
@@ -72,8 +88,8 @@ const SignUpForm = () => {
           required
         />
 
-        <label>Confirm Password</label>
-        <input
+        <FormInput
+          label='Confirm password'
           name='confirmPassword'
           type='password'
           value={confirmPassword}
@@ -81,7 +97,9 @@ const SignUpForm = () => {
           required
         />
 
-        <button type='submit'>Sign up</button>
+        <Button buttonType='google' type='submit'>
+          Sign up
+        </Button>
       </form>
     </div>
   );
