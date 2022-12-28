@@ -4,6 +4,7 @@ import PRODUCTS from '../shop-data.json';
 
 export const ProductsContext = createContext({
   products: [],
+  setOpen: () => null,
 });
 
 export const ProductsProvider = ({ children }) => {
